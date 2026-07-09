@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a73e8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>정처기 실기 · 코드 출력 문제</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 홈: 범위 선택 -->
+<section id="home" class="screen active">
+  <header class="app-head">
+    <h1>📚 정처기 실기</h1>
+    <p class="sub">코드를 보고 <b>출력값</b>을 맞혀보세요</p>
+  </header>
+  <div class="menu" id="subjectMenu"><!-- JS 생성 --></div>
+  <button id="notesBtn" class="notes-btn">📕 오답노트 <span id="notesCount">0</span></button>
+</section>
+
+<!-- 퀴즈 -->
+<section id="quiz" class="screen">
+  <div class="topbar">
+    <button class="linkbtn" data-go="home">◀ 범위</button>
+    <span id="progress" class="progress"></span>
+    <span id="score" class="score"></span>
+  </div>
+  <span id="badge" class="badge"></span>
+  <p id="qtext" class="qtext"></p>
+  <pre id="code" class="code"></pre>
+  <div class="answer-row">
+    <input id="answer" type="text" inputmode="text" autocomplete="off"
+           autocapitalize="off" spellcheck="false" placeholder="출력값 입력">
+    <button id="submitBtn" class="primary">제출</button>
+  </div>
+  <div id="feedback" class="feedback"></div>
+  <label id="noteToggleWrap" class="note-toggle" hidden>
+    <input type="checkbox" id="noteToggle"> 📕 오답노트에 저장
+  </label>
+  <button id="nextBtn" class="next" hidden>다음 문제 →</button>
+</section>
+
+<!-- 결과 -->
+<section id="result" class="screen">
+  <header class="app-head"><h1>결과</h1></header>
+  <p id="resultText" class="result-text"></p>
+  <button class="primary big" data-go="retry">다시 풀기</button>
+  <button class="ghost big" data-go="home">범위 선택으로</button>
+</section>
+
+<!-- 오답노트 -->
+<section id="notes" class="screen">
+  <div class="topbar">
+    <button class="linkbtn" data-go="home">◀ 홈</button>
+    <span class="progress">📕 오답노트</span>
+    <span></span>
+  </div>
+  <button id="retryNotesBtn" class="primary" style="margin:0 16px 8px">오답 다시 풀기</button>
+  <div id="notesList" class="notes-list"></div>
+</section>
+
+<script src="questions.js"></script>
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  }
+</script>
+</body>
+</html>

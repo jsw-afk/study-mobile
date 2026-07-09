@@ -1,0 +1,15 @@
+{
+  "name": "정처기 실기 · 코드 출력 문제",
+  "short_name": "정처기실기",
+  "description": "정보처리기사 실기 C/Java/Python 코드 출력값 문제풀이 + 오답노트",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f6f8",
+  "theme_color": "#1a73e8",
+  "lang": "ko",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

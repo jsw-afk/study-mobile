@@ -1,0 +1,4 @@
+# 로컬/OS 부산물
+.DS_Store
+Thumbs.db
+__pycache__/
