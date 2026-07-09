@@ -18,7 +18,7 @@
 
   // ---- 유틸 ----
   const $ = (id) => document.getElementById(id);
-  const screens = ["home", "quiz", "result", "notes"];
+  const screens = ["home", "sections", "quiz", "result", "notes"];
   function show(name) {
     screens.forEach((s) => $(s).classList.toggle("active", s === name));
     window.scrollTo(0, 0);
@@ -78,7 +78,8 @@
       const n = s === "전체" ? ALL.length : (counts[s] || 0);
       const b = document.createElement("button");
       b.innerHTML = `<span><span class="dot ${dotFor(s)}"></span>${s}</span><span class="cnt">${n}문항</span>`;
-      b.onclick = () => startQuiz(s === "전체" ? null : s);
+      // 전체는 바로 퀴즈, 특정 과목은 단원 선택 화면으로
+      b.onclick = () => (s === "전체" ? startQuiz(null) : showSections(s));
       menu.appendChild(b);
     });
     updateNotesCount();
@@ -96,6 +97,47 @@
     if (!notes.length) { alert("오답노트가 비어 있습니다."); return; }
     pool = notes.map((n) => n.q);
     isNotesQuiz = true;
+    beginPool();
+  }
+
+  // ---- 단원(섹션) 선택 ----
+  function sectionOf(q) { return (q.no || "").split("-")[0] || "?"; }
+
+  function showSections(subject) {
+    const qs = ALL.filter((q) => q.subject === subject);
+    const secs = {}, secOrder = [];
+    qs.forEach((q) => {
+      const s = sectionOf(q);
+      if (!secs[s]) { secs[s] = { title: q.sectitle || "", count: 0 }; secOrder.push(s); }
+      secs[s].count++;
+      if (!secs[s].title && q.sectitle) secs[s].title = q.sectitle;
+    });
+    secOrder.sort((a, b) => (parseInt(a, 10) || 9999) - (parseInt(b, 10) || 9999));
+
+    $("secTitle").textContent = subject + " · 단원 선택";
+    const menu = $("sectionMenu");
+    menu.innerHTML = "";
+
+    // 맨 위: 과목 전체
+    const allBtn = document.createElement("button");
+    allBtn.innerHTML = `<span><span class="dot ${subjClass(subject)}"></span>${subject} 전체</span><span class="cnt">${qs.length}문항</span>`;
+    allBtn.onclick = () => startQuiz(subject);
+    menu.appendChild(allBtn);
+
+    secOrder.forEach((s) => {
+      const info = secs[s];
+      const b = document.createElement("button");
+      b.innerHTML = `<span>${s}. ${esc(info.title || "단원 " + s)}</span><span class="cnt">${info.count}문항</span>`;
+      b.onclick = () => startSectionQuiz(subject, s);
+      menu.appendChild(b);
+    });
+    show("sections");
+  }
+
+  function startSectionQuiz(subject, section) {
+    pool = ALL.filter((q) => q.subject === subject && sectionOf(q) === section);
+    if (!pool.length) { alert("해당 단원에 문제가 없습니다."); return; }
+    isNotesQuiz = false;
     beginPool();
   }
   function selectedOrder() {
