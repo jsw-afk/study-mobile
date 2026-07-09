@@ -226,10 +226,13 @@
     $("score").textContent = `맞힘 ${correct}`;
 
     const fb = $("feedback");
-    const shown = (q.answers && q.answers.length) ? q.answers.join("  또는  ") : "(정답 정보 없음)";
+    // 정답은 줄바꿈을 보존해 실제 출력 형태 그대로 표시(pre)
+    const ansHtml = (q.answers && q.answers.length)
+      ? q.answers.map((a) => `<pre class="ans-pre">${esc(a)}</pre>`).join('<div class="ans-or">또는</div>')
+      : '<span>(정답 정보 없음)</span>';
     let html = ok
       ? `<div class="ok">✅ 정답!</div>`
-      : `<div class="no">❌ 오답</div><div>정답: <span class="correct-ans">${esc(shown)}</span></div>`;
+      : `<div class="no">❌ 오답</div><div class="ans-label">정답</div>${ansHtml}`;
     if (!ok && q.solution) html += `<div class="sol">${esc(q.solution)}</div>`;
     fb.innerHTML = html;
 

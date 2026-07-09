@@ -83,6 +83,11 @@ button.primary:disabled { background: #c6d5f0; }
 .feedback .sol { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
   padding: 12px 14px; margin-top: 10px; white-space: pre-wrap; color: #3c4043; }
 .feedback .correct-ans { font-weight: 700; }
+.feedback .ans-label { margin-top: 6px; font-size: 14px; color: var(--muted); }
+.feedback .ans-pre { background: #fff; border: 1px solid var(--line); border-radius: 8px;
+  padding: 8px 10px; margin: 6px 0; white-space: pre-wrap; overflow-x: auto;
+  font-family: Consolas, "D2Coding", monospace; font-size: 14px; font-weight: 700; color: #202124; }
+.feedback .ans-or { text-align: center; color: var(--muted); font-size: 12px; margin: 2px 0; }
 
 .note-toggle { display: block; margin: 8px 2px 4px; color: #b06000; font-weight: 600; font-size: 14px; }
 .next { width: 100%; margin-top: 14px; padding: 16px; font-size: 16px; font-weight: 700;
