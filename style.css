@@ -81,7 +81,8 @@ button.primary:disabled { background: #c6d5f0; }
 .feedback .ok { color: #188038; font-weight: 700; font-size: 18px; }
 .feedback .no { color: #c5221f; font-weight: 700; font-size: 18px; }
 .feedback .sol { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
-  padding: 12px 14px; margin-top: 10px; white-space: pre-wrap; color: #3c4043; }
+  padding: 12px 14px; margin-top: 10px; white-space: pre-wrap; color: #3c4043; line-height: 1.6; }
+.feedback .sol-label { font-weight: 700; color: #1a73e8; margin-bottom: 6px; }
 .feedback .correct-ans { font-weight: 700; }
 .feedback .ans-label { margin-top: 6px; font-size: 14px; color: var(--muted); }
 .feedback .ans-pre { background: #fff; border: 1px solid var(--line); border-radius: 8px;

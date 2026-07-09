@@ -233,7 +233,8 @@
     let html = ok
       ? `<div class="ok">✅ 정답!</div>`
       : `<div class="no">❌ 오답</div><div class="ans-label">정답</div>${ansHtml}`;
-    if (!ok && q.solution) html += `<div class="sol">${esc(q.solution)}</div>`;
+    // 맞히든 틀리든 해설은 항상 보여준다
+    if (q.solution) html += `<div class="sol"><div class="sol-label">📘 해설</div>${esc(q.solution)}</div>`;
     fb.innerHTML = html;
 
     // 오답 시 자동으로 오답노트에 저장(체크 해제로 취소 가능)
