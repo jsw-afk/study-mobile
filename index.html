@@ -18,6 +18,11 @@
     <h1>📚 정처기 실기</h1>
     <p class="sub">코드를 보고 <b>출력값</b>을 맞혀보세요</p>
   </header>
+  <div class="order-sel">
+    <span>출제 순서</span>
+    <label><input type="radio" name="order" value="seq" checked> 순서대로</label>
+    <label><input type="radio" name="order" value="rand"> 랜덤</label>
+  </div>
   <div class="menu" id="subjectMenu"><!-- JS 생성 --></div>
   <button id="notesBtn" class="notes-btn">📕 오답노트 <span id="notesCount">0</span></button>
 </section>
@@ -32,6 +37,17 @@
   <span id="badge" class="badge"></span>
   <p id="qtext" class="qtext"></p>
   <pre id="code" class="code"></pre>
+
+  <button id="runToggle" class="run-toggle" hidden>▶ 코드 실행</button>
+  <div id="runPanel" class="run-panel" hidden>
+    <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+    <div class="run-row">
+      <span id="runLang" class="run-lang"></span>
+      <button id="runBtn" class="primary">실행</button>
+    </div>
+    <pre id="runOut" class="run-out"></pre>
+  </div>
+
   <div class="answer-row">
     <input id="answer" type="text" inputmode="text" autocomplete="off"
            autocapitalize="off" spellcheck="false" placeholder="출력값 입력">

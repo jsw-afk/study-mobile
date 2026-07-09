@@ -98,8 +98,29 @@
     isNotesQuiz = true;
     beginPool();
   }
+  function selectedOrder() {
+    const el = document.querySelector('input[name="order"]:checked');
+    return el ? el.value : "seq";
+  }
+  function subjRank(s) { return s === "C언어" ? 0 : s === "Java" ? 1 : s === "Python" ? 2 : 3; }
+  function noKey(q) {
+    const m = /(\d+)\D+(\d+)/.exec(q.no || "");
+    return m ? [parseInt(m[1], 10), parseInt(m[2], 10)] : [9999, 9999];
+  }
   function beginPool() {
-    order = shuffle(pool.map((_, i) => i));
+    const idx = pool.map((_, i) => i);
+    if (selectedOrder() === "rand") {
+      shuffle(idx);
+    } else {
+      // 순서대로: 과목(C→Java→Python) → 번호(섹션-문항) 순
+      idx.sort((a, b) => {
+        const r = subjRank(pool[a].subject) - subjRank(pool[b].subject);
+        if (r) return r;
+        const ka = noKey(pool[a]), kb = noKey(pool[b]);
+        return ka[0] - kb[0] || ka[1] - kb[1];
+      });
+    }
+    order = idx;
     cur = 0; correct = 0;
     show("quiz");
     render();
@@ -125,13 +146,24 @@
     if (q.code) { codeEl.textContent = q.code; codeEl.style.display = ""; }
     else { codeEl.textContent = ""; codeEl.style.display = "none"; }
 
+    // 코드 실행 패널 초기화 (코드가 있을 때만 노출)
+    const hasCode = !!q.code;
+    $("runToggle").hidden = !hasCode;
+    $("runPanel").hidden = true;
+    $("runToggle").textContent = "▶ 코드 실행";
+    if (hasCode) {
+      $("editor").value = q.code;
+      $("runLang").textContent = "언어: " + (q.subject || "");
+      $("runOut").textContent = "";
+      $("runOut").className = "run-out";
+    }
+
     const ans = $("answer");
     ans.value = ""; ans.disabled = false;
     $("submitBtn").disabled = false;
     $("feedback").innerHTML = "";
     $("noteToggleWrap").hidden = true;
     $("nextBtn").hidden = true;
-    ans.focus();
   }
 
   // ---- 채점 ----
@@ -221,6 +253,64 @@
   $("nextBtn").onclick = next;
   $("notesBtn").onclick = () => { renderNotes(); };
   $("retryNotesBtn").onclick = startNotesQuiz;
+
+  // ---- 코드 실행 (Wandbox 공개 API, 브라우저에서 직접 호출 · 인터넷 필요) ----
+  const WANDBOX = "https://wandbox.org/api/compile.json";
+  const COMPILER = { "C언어": "gcc-13.2.0-c", "Java": "openjdk-jdk-21+35", "Python": "cpython-3.14.0" };
+
+  function wrapForRun(subject, code) {
+    if (subject === "C언어") {
+      if (!/\bmain\s*\(/.test(code))
+        return "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\nint main(void){\n" + code + "\nreturn 0;\n}\n";
+      return code;
+    }
+    if (subject === "Java") {
+      // Wandbox 는 소스 파일명이 prog.java 라 'public class' 면 오류 → public 제거
+      let c = code.replace(/\bpublic\s+class\b/g, "class");
+      if (!/\bclass\b/.test(c))
+        c = "class Main{ public static void main(String[] a){\n" + code + "\n} }";
+      return c;
+    }
+    return code; // Python 은 그대로
+  }
+
+  async function runCode() {
+    const q = pool[order[cur]];
+    const compiler = COMPILER[q.subject] || "cpython-3.14.0";
+    const code = wrapForRun(q.subject, $("editor").value);
+    const out = $("runOut");
+    out.className = "run-out";
+    out.textContent = "실행 중... (몇 초 걸릴 수 있어요)";
+    $("runBtn").disabled = true;
+    try {
+      const res = await fetch(WANDBOX, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code, compiler: compiler, stdin: "" })
+      });
+      const d = await res.json();
+      const cerr = d.compiler_error || "";
+      const runOut = (d.program_output || "") + (d.program_error || "");
+      if (String(d.status) !== "0" && cerr) {
+        out.className = "run-out err";
+        out.textContent = "[컴파일 오류]\n" + cerr;
+      } else {
+        out.textContent = runOut || "(출력 없음)";
+      }
+    } catch (e) {
+      out.className = "run-out err";
+      out.textContent = "실행 실패 — 인터넷 연결이 필요합니다.\n" + e;
+    } finally {
+      $("runBtn").disabled = false;
+    }
+  }
+
+  $("runToggle").onclick = () => {
+    const p = $("runPanel");
+    p.hidden = !p.hidden;
+    $("runToggle").textContent = p.hidden ? "▶ 코드 실행" : "▼ 코드 실행 닫기";
+  };
+  $("runBtn").onclick = runCode;
 
   // ---- 시작 ----
   buildHome();
