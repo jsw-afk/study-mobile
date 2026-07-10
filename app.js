@@ -174,7 +174,7 @@
     const q = pool[order[cur]];
     answered = false;
     $("progress").textContent = `문제 ${cur + 1} / ${order.length}`;
-    $("score").textContent = `맞힘 ${scoreCount()}`;
+    $("score").textContent = "";   // 맞힌 개수 카운트는 표시하지 않음
 
     let badge = q.subject + (q.no ? " " + q.no : "") + (q.topic ? " · " + q.topic : "");
     if (isNotesQuiz) badge = "오답 · " + badge;
@@ -225,8 +225,7 @@
     answered = true;
     $("answer").disabled = true;
     $("submitBtn").disabled = true;
-    results[cur] = ok;   // 위치별 결과 기록(재채점 시 덮어씀 → 중복집계 없음)
-    $("score").textContent = `맞힘 ${scoreCount()}`;
+    results[cur] = ok;   // 푼 문제 표시용(개수 카운트는 안 함)
 
     const fb = $("feedback");
     // 정답은 줄바꿈을 보존해 실제 출력 형태 그대로 표시(pre)
@@ -259,12 +258,11 @@
 
   function finish() {
     const total = order.length;
-    const done = Object.keys(results).length;   // 실제로 푼(채점한) 문제 수
-    const c = scoreCount();
-    const pct = done ? Math.round((c / done) * 100) : 0;
+    const done = Object.keys(results).length;   // 실제로 푼(넘긴) 문제 수
     $("resultText").innerHTML =
-      `전체 ${total}문제 중 ${done}문제 풀이<br><b>${c}문제</b> 정답 · 정답률 <b>${pct}%</b>` +
-      `<br><span style="font-size:14px;color:#5f6368">틀린 문제는 📕 체크해서 오답노트에 담을 수 있어요</span>`;
+      `<div style="font-size:24px;font-weight:700;color:#1a73e8">풀이 완료 🎉</div>` +
+      `<div style="margin-top:10px">전체 ${total}문제 중 ${done}문제를 풀었어요</div>` +
+      `<div style="margin-top:12px;font-size:14px;color:#5f6368">틀린 문제는 📕 체크해서 오답노트에 담을 수 있어요</div>`;
     show("result");
   }
 
