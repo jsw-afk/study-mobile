@@ -1,5 +1,5 @@
 /* 서비스워커 — 앱 셸 캐싱으로 오프라인 지원 */
-const CACHE = "jeongcheogi-v7";
+const CACHE = "jeongcheogi-v8";
 const ASSETS = [
   "./",
   "./index.html",

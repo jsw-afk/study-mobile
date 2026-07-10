@@ -93,6 +93,11 @@ button.primary:disabled { background: #c6d5f0; }
 .note-toggle { display: block; margin: 8px 2px 4px; color: #b06000; font-weight: 600; font-size: 14px; }
 .next { width: 100%; margin-top: 14px; padding: 16px; font-size: 16px; font-weight: 700;
   background: #fff; color: var(--blue); border: 1px solid var(--blue); border-radius: 12px; cursor: pointer; }
+.navrow { display: flex; gap: 10px; margin-top: 16px; }
+.nav-btn { flex: 1; padding: 15px; font-size: 15px; font-weight: 700; cursor: pointer;
+  background: #fff; color: var(--blue); border: 1px solid var(--blue); border-radius: 12px; }
+.nav-btn:active { background: #f1f6fe; }
+.nav-btn:disabled { color: #b0b4b9; border-color: var(--line); background: #f8f9fa; cursor: default; }
 
 /* 결과 */
 .result-text { text-align: center; font-size: 20px; line-height: 1.6; margin: 30px 0; }

@@ -12,9 +12,10 @@
   let pool = [];        // 현재 퀴즈 문제들
   let order = [];       // 셔플된 인덱스
   let cur = 0;
-  let correct = 0;
   let answered = false;
   let isNotesQuiz = false;
+  let results = {};   // 위치별 채점 결과(정답 여부). 이전/다음 자유 이동해도 점수 중복집계 방지
+  const scoreCount = () => Object.values(results).filter(Boolean).length;
 
   // ---- 유틸 ----
   const $ = (id) => document.getElementById(id);
@@ -163,7 +164,7 @@
       });
     }
     order = idx;
-    cur = 0; correct = 0;
+    cur = 0; results = {};
     show("quiz");
     render();
   }
@@ -173,7 +174,7 @@
     const q = pool[order[cur]];
     answered = false;
     $("progress").textContent = `문제 ${cur + 1} / ${order.length}`;
-    $("score").textContent = `맞힘 ${correct}`;
+    $("score").textContent = `맞힘 ${scoreCount()}`;
 
     let badge = q.subject + (q.no ? " " + q.no : "") + (q.topic ? " · " + q.topic : "");
     if (isNotesQuiz) badge = "오답 · " + badge;
@@ -205,7 +206,9 @@
     $("submitBtn").disabled = false;
     $("feedback").innerHTML = "";
     $("noteToggleWrap").hidden = true;
-    $("nextBtn").hidden = true;
+    // 이전/다음은 항상 보이며 채점과 무관하게 이동 가능
+    $("prevBtn").disabled = (cur === 0);
+    $("nextBtn").textContent = (cur === order.length - 1) ? "결과 ▶" : "다음 ▶";
   }
 
   // ---- 채점 ----
@@ -222,8 +225,8 @@
     answered = true;
     $("answer").disabled = true;
     $("submitBtn").disabled = true;
-    if (ok) correct++;
-    $("score").textContent = `맞힘 ${correct}`;
+    results[cur] = ok;   // 위치별 결과 기록(재채점 시 덮어씀 → 중복집계 없음)
+    $("score").textContent = `맞힘 ${scoreCount()}`;
 
     const fb = $("feedback");
     // 정답은 줄바꿈을 보존해 실제 출력 형태 그대로 표시(pre)
@@ -241,14 +244,12 @@
     const wrap = $("noteToggleWrap");
     const toggle = $("noteToggle");
     wrap.hidden = false;
-    if (!ok) { addNote(q, input); toggle.checked = true; }
-    else { toggle.checked = noteIndex(loadNotes(), q) >= 0; }
+    // 틀려도 자동 추가하지 않는다. 이미 담긴 문제면 체크 표시, 아니면 해제(기본).
+    toggle.checked = noteIndex(loadNotes(), q) >= 0;
     toggle.onchange = () => {
       if (toggle.checked) addNote(q, input);
       else removeNote(q);
     };
-
-    $("nextBtn").hidden = false;
   }
 
   function next() {
@@ -258,11 +259,17 @@
 
   function finish() {
     const total = order.length;
-    const pct = total ? Math.round((correct / total) * 100) : 0;
+    const done = Object.keys(results).length;   // 실제로 푼(채점한) 문제 수
+    const c = scoreCount();
+    const pct = done ? Math.round((c / done) * 100) : 0;
     $("resultText").innerHTML =
-      `${total}문제 중 <b>${correct}문제</b> 정답<br>정답률 <b>${pct}%</b>` +
-      `<br><span style="font-size:14px;color:#5f6368">오답은 📕 오답노트에 저장되었습니다</span>`;
+      `전체 ${total}문제 중 ${done}문제 풀이<br><b>${c}문제</b> 정답 · 정답률 <b>${pct}%</b>` +
+      `<br><span style="font-size:14px;color:#5f6368">틀린 문제는 📕 체크해서 오답노트에 담을 수 있어요</span>`;
     show("result");
+  }
+
+  function prev() {
+    if (cur > 0) { cur--; render(); }
   }
 
   // ---- 오답노트 화면 ----
@@ -297,6 +304,7 @@
     if (e.key === "Enter") { e.preventDefault(); answered ? next() : grade(); }
   });
   $("nextBtn").onclick = next;
+  $("prevBtn").onclick = prev;
   $("notesBtn").onclick = () => { renderNotes(); };
   $("retryNotesBtn").onclick = startNotesQuiz;
 
