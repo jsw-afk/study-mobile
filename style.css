@@ -66,10 +66,11 @@ body {
   white-space: pre; margin: 8px 0 16px;
 }
 
-.answer-row { display: flex; gap: 8px; }
+.answer-row { display: flex; gap: 8px; align-items: flex-end; }
 #answer {
-  flex: 1; padding: 14px; font-size: 16px; border: 1px solid var(--line);
-  border-radius: 10px; font-family: Consolas, monospace;
+  flex: 1; padding: 12px 14px; font-size: 16px; border: 1px solid var(--line);
+  border-radius: 10px; font-family: Consolas, monospace; line-height: 1.4;
+  min-height: 46px; resize: vertical; box-sizing: border-box;
 }
 #answer:focus { outline: none; border-color: var(--blue); }
 button.primary { background: var(--blue); color: #fff; border: none; border-radius: 10px;

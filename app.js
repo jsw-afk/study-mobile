@@ -298,8 +298,12 @@
     else if (go === "retry") { beginPool(); }
   });
   $("submitBtn").onclick = grade;
+  // 여러 줄 입력을 위해 Enter=줄바꿈, 제출은 버튼 또는 Ctrl/⌘+Enter
   $("answer").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); answered ? next() : grade(); }
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      answered ? next() : grade();
+    }
   });
   $("nextBtn").onclick = next;
   $("prevBtn").onclick = prev;
