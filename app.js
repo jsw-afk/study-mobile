@@ -88,7 +88,9 @@
 
   // ---- 퀴즈 시작 ----
   function startQuiz(subject) {
-    pool = subject ? ALL.filter((q) => q.subject === subject) : ALL.slice();
+    // 전체/과목 전체는 '기존'만 (예상은 단원에서 선택)
+    pool = (subject ? ALL.filter((q) => q.subject === subject) : ALL.slice())
+             .filter((q) => (q.variant || "기존") !== "예상");
     if (!pool.length) { alert("해당 범위에 문제가 없습니다."); return; }
     isNotesQuiz = false;
     beginPool();
@@ -109,8 +111,8 @@
     const secs = {}, secOrder = [];
     qs.forEach((q) => {
       const s = sectionOf(q);
-      if (!secs[s]) { secs[s] = { title: q.sectitle || "", count: 0 }; secOrder.push(s); }
-      secs[s].count++;
+      if (!secs[s]) { secs[s] = { title: q.sectitle || "", old: 0, exp: 0 }; secOrder.push(s); }
+      if ((q.variant || "기존") === "예상") secs[s].exp++; else secs[s].old++;
       if (!secs[s].title && q.sectitle) secs[s].title = q.sectitle;
     });
     secOrder.sort((a, b) => (parseInt(a, 10) || 9999) - (parseInt(b, 10) || 9999));
@@ -119,24 +121,37 @@
     const menu = $("sectionMenu");
     menu.innerHTML = "";
 
-    // 맨 위: 과목 전체
+    // 맨 위: 과목 전체(기존만)
+    const oldCount = qs.filter((q) => (q.variant || "기존") !== "예상").length;
     const allBtn = document.createElement("button");
-    allBtn.innerHTML = `<span><span class="dot ${subjClass(subject)}"></span>${subject} 전체</span><span class="cnt">${qs.length}문항</span>`;
+    allBtn.innerHTML = `<span><span class="dot ${subjClass(subject)}"></span>${subject} 전체</span><span class="cnt">기존 ${oldCount}문항</span>`;
     allBtn.onclick = () => startQuiz(subject);
     menu.appendChild(allBtn);
 
+    const addBtn = (s, title, variant, cnt) => {
+      const b = document.createElement("button");
+      b.innerHTML = `<span>${s}. ${esc(title || "단원 " + s)} <b style="color:#5f6368;font-weight:600">(${variant})</b></span><span class="cnt">${cnt}문항</span>`;
+      b.onclick = () => startSectionQuiz(subject, s, variant);
+      menu.appendChild(b);
+    };
     secOrder.forEach((s) => {
       const info = secs[s];
-      const b = document.createElement("button");
-      b.innerHTML = `<span>${s}. ${esc(info.title || "단원 " + s)}</span><span class="cnt">${info.count}문항</span>`;
-      b.onclick = () => startSectionQuiz(subject, s);
-      menu.appendChild(b);
+      if (info.exp > 0) {   // 예상이 있는 단원: 기존 / 예상 나눠서
+        addBtn(s, info.title, "기존", info.old);
+        addBtn(s, info.title, "예상", info.exp);
+      } else {              // 예상 없는 단원: 기존만
+        const b = document.createElement("button");
+        b.innerHTML = `<span>${s}. ${esc(info.title || "단원 " + s)}</span><span class="cnt">${info.old}문항</span>`;
+        b.onclick = () => startSectionQuiz(subject, s, "기존");
+        menu.appendChild(b);
+      }
     });
     show("sections");
   }
 
-  function startSectionQuiz(subject, section) {
-    pool = ALL.filter((q) => q.subject === subject && sectionOf(q) === section);
+  function startSectionQuiz(subject, section, variant) {
+    pool = ALL.filter((q) => q.subject === subject && sectionOf(q) === section
+                             && (q.variant || "기존") === variant);
     if (!pool.length) { alert("해당 단원에 문제가 없습니다."); return; }
     isNotesQuiz = false;
     beginPool();
@@ -177,6 +192,7 @@
     $("score").textContent = "";   // 맞힌 개수 카운트는 표시하지 않음
 
     let badge = q.subject + (q.no ? " " + q.no : "") + (q.topic ? " · " + q.topic : "");
+    if ((q.variant || "기존") === "예상") badge += " · 예상";
     if (isNotesQuiz) badge = "오답 · " + badge;
     const bd = $("badge");
     bd.textContent = badge;
