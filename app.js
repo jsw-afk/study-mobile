@@ -128,24 +128,41 @@
     allBtn.onclick = () => startQuiz(subject);
     menu.appendChild(allBtn);
 
-    const addBtn = (s, title, variant, cnt) => {
-      const b = document.createElement("button");
-      b.innerHTML = `<span>${s}. ${esc(title || "단원 " + s)} <b style="color:#5f6368;font-weight:600">(${variant})</b></span><span class="cnt">${cnt}문항</span>`;
-      b.onclick = () => startSectionQuiz(subject, s, variant);
-      menu.appendChild(b);
-    };
+    // 단원 클릭 → 하위에서 기존/예상 선택(중첩)
     secOrder.forEach((s) => {
       const info = secs[s];
-      if (info.exp > 0) {   // 예상이 있는 단원: 기존 / 예상 나눠서
-        addBtn(s, info.title, "기존", info.old);
-        addBtn(s, info.title, "예상", info.exp);
-      } else {              // 예상 없는 단원: 기존만
-        const b = document.createElement("button");
-        b.innerHTML = `<span>${s}. ${esc(info.title || "단원 " + s)}</span><span class="cnt">${info.old}문항</span>`;
-        b.onclick = () => startSectionQuiz(subject, s, "기존");
-        menu.appendChild(b);
-      }
+      const b = document.createElement("button");
+      b.innerHTML = `<span>${s}. ${esc(info.title || "단원 " + s)}</span><span class="cnt">▸</span>`;
+      b.onclick = () => showVariants(subject, s, info.title);
+      menu.appendChild(b);
     });
+    show("sections");
+  }
+
+  // 단원 하위: 기존 / 예상 선택
+  function showVariants(subject, sec, title) {
+    const list = ALL.filter((q) => q.subject === subject && sectionOf(q) === sec);
+    const oldN = list.filter((q) => (q.variant || "기존") !== "예상").length;
+    const expN = list.filter((q) => (q.variant || "기존") === "예상").length;
+    $("secTitle").textContent = `${sec}. ${title || ""}`;
+    const menu = $("sectionMenu");
+    menu.innerHTML = "";
+
+    const back = document.createElement("button");
+    back.innerHTML = `<span>◀ 단원 목록</span><span class="cnt"></span>`;
+    back.onclick = () => showSections(subject);
+    menu.appendChild(back);
+
+    const mk = (variant, cnt) => {
+      const b = document.createElement("button");
+      const enabled = cnt > 0;
+      b.innerHTML = `<span>📘 ${variant}</span><span class="cnt">${enabled ? cnt + "문항" : "준비 중"}</span>`;
+      if (enabled) b.onclick = () => startSectionQuiz(subject, sec, variant);
+      else { b.disabled = true; b.style.opacity = "0.5"; }
+      menu.appendChild(b);
+    };
+    mk("기존", oldN);
+    mk("예상", expN);
     show("sections");
   }
 
