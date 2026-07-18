@@ -19,7 +19,7 @@
 
   // ---- 유틸 ----
   const $ = (id) => document.getElementById(id);
-  const screens = ["home", "sections", "quiz", "result", "notes"];
+  const screens = ["home", "sections", "quiz", "result", "notes", "summary"];
   function show(name) {
     screens.forEach((s) => $(s).classList.toggle("active", s === name));
     window.scrollTo(0, 0);
@@ -342,6 +342,16 @@
   $("prevBtn").onclick = prev;
   $("notesBtn").onclick = () => { renderNotes(); };
   $("retryNotesBtn").onclick = startNotesQuiz;
+
+  // ---- 핵심요약 ----
+  let summaryLoaded = false;
+  $("summaryBtn").onclick = () => {
+    if (!summaryLoaded) {
+      $("summaryBody").innerHTML = window.SUMMARY_HTML || "<p>요약을 불러오지 못했습니다.</p>";
+      summaryLoaded = true;
+    }
+    show("summary");
+  };
 
   // ---- 코드 실행 (Wandbox 공개 API, 브라우저에서 직접 호출 · 인터넷 필요) ----
   const WANDBOX = "https://wandbox.org/api/compile.json";

@@ -24,7 +24,18 @@
     <label><input type="radio" name="order" value="rand"> 랜덤</label>
   </div>
   <div class="menu" id="subjectMenu"><!-- JS 생성 --></div>
+  <button id="summaryBtn" class="notes-btn summary-btn">📋 핵심요약 (시험 직전 참고)</button>
   <button id="notesBtn" class="notes-btn">📕 오답노트 <span id="notesCount">0</span></button>
+</section>
+
+<!-- 핵심요약 -->
+<section id="summary" class="screen">
+  <div class="topbar">
+    <button class="linkbtn" data-go="home">◀ 홈</button>
+    <span class="progress">📋 핵심요약</span>
+    <span></span>
+  </div>
+  <div id="summaryBody" class="summary-body"><!-- JS 주입 --></div>
 </section>
 
 <!-- 단원(섹션) 선택 -->
@@ -93,6 +104,7 @@
 </section>
 
 <script src="questions.js"></script>
+<script src="summary.js"></script>
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
